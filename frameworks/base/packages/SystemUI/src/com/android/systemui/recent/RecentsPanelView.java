@@ -405,7 +405,24 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     public void dismissAndGoBack() {
         ((RecentsActivity) mContext).dismissAndGoBack();
     }
-
+    public void dismissChild(View paramView)
+    {
+      try
+      {
+    	
+        if (this.mRecentsContainer instanceof RecentsVerticalScrollView)
+        	
+          ((RecentsVerticalScrollView)this.mRecentsContainer).dismissChild(paramView);
+        
+        if (this.mRecentsContainer instanceof RecentsHorizontalScrollView)
+          ((RecentsHorizontalScrollView)this.mRecentsContainer).dismissChild(paramView);
+      
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
     public void onAnimationCancel(Animator animation) {
     }
 
@@ -484,7 +501,39 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             }
         }
     }
+ 
+    public void removeTaskDescription(TaskDescription myTaskDescription) {
+       
+        if (myTaskDescription == null) {
+       //     Log.v(TAG, "Not able to find activity description for swiped task; view=" + view +
+         //           " tag=" + view.getTag());
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "Jettison " + myTaskDescription.getLabel());
+        mRecentTaskDescriptions.remove(myTaskDescription);
+        mRecentTasksLoader.remove(myTaskDescription);
 
+        // Handled by widget containers to enable LayoutTransitions properly
+        // mListAdapter.notifyDataSetChanged();
+
+        if (mRecentTaskDescriptions.size() == 0) {
+            dismissAndGoBack();
+        }
+
+        // Currently, either direction means the same thing, so ignore direction and remove
+        // the task.
+        final ActivityManager am = (ActivityManager)
+                mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am != null) {
+            am.removeTask(myTaskDescription.persistentTaskId, ActivityManager.REMOVE_TASK_KILL_PROCESS);
+
+            // Accessibility feedback
+            setContentDescription(
+                    mContext.getString(R.string.accessibility_recents_item_dismissed, myTaskDescription.getLabel()));
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
+            setContentDescription(null);
+        }
+    }
     public void setMinSwipeAlpha(float minAlpha) {
         mRecentsContainer.setMinSwipeAlpha(minAlpha);
     }
@@ -782,7 +831,23 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             return super.onInterceptTouchEvent(ev);
         }
     }
-
+    public View findViewForTask(int paramInt)
+    {
+      try
+      {
+        if (mRecentsContainer instanceof RecentsVerticalScrollView)
+        	
+          return ((RecentsVerticalScrollView)mRecentsContainer).findViewForTask(paramInt);
+  
+        View mView = ((RecentsHorizontalScrollView)mRecentsContainer).findViewForTask(paramInt);
+        return mView;
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+     return null;
+    }
     public void handleLongPress(
             final View selectedView, final View anchorView, final View thumbnailView) {
         thumbnailView.setSelected(true);

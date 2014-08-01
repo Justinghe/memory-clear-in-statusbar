@@ -28,7 +28,12 @@ import android.os.UserHandle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.view.View.OnClickListener;
+import android.util.Log;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.StatusBarPanel;
 
@@ -160,7 +165,23 @@ public class RecentsActivity extends Activity {
             mRecentsPanel.show(false);
         }
     }
-
+    public void clearRecents()
+    {
+      ArrayList activiryArrayList = (ArrayList)RecentTasksLoader.getInstance(this).getLoadedTasks().clone();
+      if ((activiryArrayList == null) || (activiryArrayList.size() == 0))
+        return;
+      Iterator mIterator = activiryArrayList.iterator();
+      while (mIterator.hasNext())
+      {
+        TaskDescription mTaskDescription = (TaskDescription)mIterator.next();
+        if ((mRecentsPanel == null) || (mTaskDescription == null))
+          continue;
+        Log.e("chunlei", "clearRecents ad.packageName" + mTaskDescription.packageName);
+      mRecentsPanel.removeTaskDescription(mTaskDescription);
+      mRecentsPanel.dismissChild(mRecentsPanel.findViewForTask(mTaskDescription.persistentTaskId));
+      }
+      activiryArrayList.clear();
+    }
     public void dismissAndGoBack() {
         if (mRecentsPanel != null) {
             final ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -189,7 +210,18 @@ public class RecentsActivity extends Activity {
         mRecentsPanel.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-
+        FrameLayout mFrameLayout = (FrameLayout)mRecentsPanel.findViewById(R.id.recents_bg_protect);
+        Button clearButton = null;
+      //  if (mFrameLayout != null)
+        clearButton = (Button)mFrameLayout.findViewById(R.id.clear_recents);
+       // if (clearButton != null)
+        	clearButton.setOnClickListener(new View.OnClickListener()
+          {
+            public void onClick(View paramView)
+            {
+             clearRecents();
+            }
+          });
         final RecentTasksLoader recentTasksLoader = RecentTasksLoader.getInstance(this);
         recentTasksLoader.setRecentsPanel(mRecentsPanel, mRecentsPanel);
         mRecentsPanel.setMinSwipeAlpha(
