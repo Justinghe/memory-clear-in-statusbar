@@ -400,6 +400,41 @@ class QuickSettings {
     }
 
     private void addSystemTiles(ViewGroup parent, LayoutInflater inflater) {
+		
+	QuickSettingsTileView mMemery = (QuickSettingsTileView)
+		
+			   inflater.inflate(R.layout.quick_settings_tile, parent, false);
+		
+			   mMemery.setContent(R.layout.quick_settings_tile_memclear, inflater);
+		
+			   mMemery.setOnClickListener(new View.OnClickListener() {
+		
+				   @Override
+		
+				   public void onClick(View v) {
+		
+					  // mBar.collapseAllPanels(true);
+		
+					  // showBrightnessDialog();
+		
+					   Intent intent = new Intent();
+		
+					   intent.setComponent(new ComponentName(
+		
+							   "com.android.systemui",
+		
+							   "com.android.systemui.statusbar.MemClearActivity"));
+		
+					   startSettingsActivity(intent);
+		
+				   }
+		
+			   });
+		
+				   parent.addView(mMemery);
+		
+					mDynamicSpannedTiles.add(mMemery);
+		
         /// M: MTK Quick Setting.
         addLaptopBatteryTile(parent, inflater);
         addBatteryTile(parent, inflater);
